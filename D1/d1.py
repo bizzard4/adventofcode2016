@@ -12,19 +12,43 @@ def update_direction(current_direction, left_or_right):
 	else:
 		return Direction((current_direction.value+1)%4)
 
-def update_position(current_postion, direction, translation):
+def check_if_visited(position, visited):
+	if (position in visited):
+		print("FOUND AT " + str(position))
+		return True
+	return False
+
+def update_position(current_postion, direction, translation, visited):
 	if (direction == Direction.NORTH):
-		return (current_postion[0], current_postion[1]+translation)
+		for i in range(translation):
+			current_postion = (current_postion[0], current_postion[1]+1)
+			if (check_if_visited(current_postion, visited)):
+				return None
+			visited.add(current_postion)
 	elif (direction == Direction.EAST):
-		return (current_postion[0]+translation, current_postion[1])
+		for i in range(translation):
+			current_postion = (current_postion[0]+1, current_postion[1])
+			if (check_if_visited(current_postion, visited)):
+				return None
+			visited.add(current_postion)
 	elif (direction == Direction.SOUTH):
-		return (current_postion[0], current_postion[1]-translation)
+		for i in range(translation):
+			current_postion = (current_postion[0], current_postion[1]-1)
+			if (check_if_visited(current_postion, visited)):
+				return None
+			visited.add(current_postion)
 	elif (direction == Direction.WEST):
-		return (current_postion[0]-translation, current_postion[1])
+		for i in range(translation):
+			current_postion = (current_postion[0]-1, current_postion[1])
+			if (check_if_visited(current_postion, visited)):
+				return None
+			visited.add(current_postion)
+
+	return current_postion
 
 
 # Read input
-op = list(map(lambda s: s.replace(',',''), open('input_t4.txt', 'r').read().split(' ')))
+op = list(map(lambda s: s.replace(',',''), open('input.txt', 'r').read().split(' ')))
 
 # Initialize state
 position = (0, 0) # x, y
@@ -33,15 +57,11 @@ visited_position = set()
 visited_position.add((0,0))
 
 for o in op:
+	old_position = position
 	direction = update_direction(direction, o[0])
-	position = update_position(position, direction, int(o[1:]))
-
-	if (position in visited_position): # We been there 2 time
-		print("We been there!")
-		print(sorted(visited_position))
-		break;
-	else:
-		visited_position.add(position);
+	position = update_position(position, direction, int(o[1:]), visited_position)
+	if (position is None):
+		break
 
 	print("Now at " + str(position) + " facing " + str(direction))
 
